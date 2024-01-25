@@ -1,5 +1,7 @@
+import 'package:app/components/components/drawer.dart';
 import 'package:app/components/components/my_textfield.dart';
 import 'package:app/pages/post.dart';
+import 'package:app/pages/profilepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +44,12 @@ class _HomePageState extends State<HomePage> {
     }
     });
   }
-
+void GoTOPRofilePage(){
+  Navigator.pop(context);
+  Navigator.push(context,MaterialPageRoute(builder: (context) => ProfilePage(),
+  ),
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +67,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-
+drawer: MyDrawer(
+  onProfileTap: () {  },
+   onSignout: () {  },
+),
       body: Center(
 
         child: Column(
