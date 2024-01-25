@@ -8,7 +8,7 @@ class Post extends StatefulWidget {
   final String user;
   final String postId;
   final List<String>likes;
-  const Post({
+  const Post({super.key, 
      required this.message, required this.user, required this.postId, required this.likes, });
 
   @override
@@ -46,8 +46,8 @@ class _PostState extends State<Post> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(8),),
-      margin: EdgeInsets.only(top: 25,left: 25,right: 25),
-      padding: EdgeInsets.all(25),
+      margin: const EdgeInsets.only(top: 25,left: 25,right: 25),
+      padding: const EdgeInsets.all(25),
       
       child: Row(
         children: [

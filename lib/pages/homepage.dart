@@ -44,9 +44,9 @@ class _HomePageState extends State<HomePage> {
     }
     });
   }
-void GoTOPRofilePage(){
+void goToProfilePage(){
   Navigator.pop(context);
-  Navigator.push(context,MaterialPageRoute(builder: (context) => ProfilePage(),
+  Navigator.push(context,MaterialPageRoute(builder: (context) => const ProfilePage(),
   ),
   );
 }
@@ -59,17 +59,11 @@ void GoTOPRofilePage(){
         title: const Text('M I N I M A L',style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.grey[900],
         elevation: 0,
-        actions: [
-          //sign out button
-          IconButton(
-            onPressed: signOut,
-            icon: const Icon(Icons.logout),
-          ),
-        ],
+      
       ),
 drawer: MyDrawer(
-  onProfileTap: () {  },
-   onSignout: () {  },
+  onProfileTap: goToProfilePage,
+   onSignout: signOut,
 ),
       body: Center(
 
@@ -89,7 +83,7 @@ drawer: MyDrawer(
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                        print("Data from Firestore: ${snapshot.data!.docs}");
+                        // print("Data from Firestore: ${snapshot.data!.docs}");
 
                     return ListView.builder(
                       itemCount: snapshot.data!.docs.length,
@@ -144,7 +138,7 @@ drawer: MyDrawer(
               ),
             ),
             //logged in as
-            Text("logged in as:" + currentUser.email!),
+            Text("logged in as:${currentUser.email!}"),
           ],
         ),
       ),

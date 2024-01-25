@@ -4,7 +4,7 @@ class MyListTile2 extends StatelessWidget {
   final IconData icon;
   final String text;
  final void Function()? onTap;
-   MyListTile2({
+   const MyListTile2({
     super.key,
   required this.icon,
   required this.text,
@@ -23,7 +23,7 @@ required this.onTap,
         ),
         onTap: onTap,
         title: Text(text,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
         ),
       ),
     );
