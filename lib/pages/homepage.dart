@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:app/components/components/drawer.dart';
+import 'package:app/helper/helper_functions.dart';
 import 'package:app/pages/post.dart';
+import 'package:app/pages/posting_page.dart';
 import 'package:app/pages/profilepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -68,8 +71,7 @@ class _HomePageState extends State<HomePage> {
 
       String? imageUrl;
       if (_selectedImage != null) {
-        imageUrl =
-            await uploadImage(_selectedImage!); 
+        imageUrl = await uploadImage(_selectedImage!);
       }
 
       FirebaseFirestore.instance.collection("User Posts").doc(ref.id).set({
@@ -77,12 +79,12 @@ class _HomePageState extends State<HomePage> {
         'Message': textController.text,
         'TimeStamp': Timestamp.now(),
         'Likes': [],
-        'ImageUrl': imageUrl ?? '', 
+        'ImageUrl': imageUrl ?? '',
       });
 
       setState(() {
         textController.clear();
-        _selectedImage = null; 
+        _selectedImage = null;
       });
     } else {
       // ScaffoldMessenger.of(context as BuildContext).showSnackBar(
@@ -100,111 +102,95 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void goToProfilePage() {
+    Navigator.pop(context as BuildContext);
+    Navigator.push(
+      context as BuildContext,
+      MaterialPageRoute(
+        builder: (context) => const ProfilePage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue.shade100,
-      appBar: AppBar(
-        title: const Text(
-          'M I N I M A L',
-          style: TextStyle(color: Colors.white),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Scaffold(
+        backgroundColor: Colors.blue.shade100,
+        drawer: MyDrawer(
+          onProfileTap: goToProfilePage,
+          onSignout: signOut,
         ),
-        backgroundColor: Colors.grey[900],
-        elevation: 0,
-        actions: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
-            },
-            child: const CircleAvatar(
-              backgroundColor: Colors.white,
-            ),
-          )
-        ],
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            // Display posts from Firestore
-            Expanded(
-                child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection("User Posts")
-                  .orderBy("TimeStamp", descending: false)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      final post = snapshot.data!.docs[index];
-                      return Post(
-                        user: post["UserEmail"],
-                        message: post["Message"],
-                        postId: post.id,
-                        likes: List<String>.from(post['Likes'] ?? []),
-                        imageUrl:
-                            post["ImageUrl"] != '' ? post["ImageUrl"] : null,
-                      );
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                return const Center(child: CircularProgressIndicator());
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PostingPage()),
+            );
+          },
+        ),
+        appBar: AppBar(
+          title: const Text(
+            'M I N I M A L',
+            style: TextStyle(color: Colors.black),
+          ),
+          elevation: 0,
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
               },
-            )),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(25),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: textController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            hintText: 'Write something here...',
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.image,
-                          color: Colors.black,
-                        ),
-                        onPressed: _pickImage,
-                      ),
-                      IconButton(
-                        onPressed: postMessage,
-                        icon: const Icon(Icons.send),
-                      ),
-                    ],
-                  ),
-                  if (_selectedImage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.file(
-                          _selectedImage!,
-                          height: 150,
-                          width: 150,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                ],
+              child: const CircleAvatar(
+                backgroundColor: Colors.black,
+                child: Icon(
+                  Icons.person,
+                  color: Colors.white,
+                ),
               ),
-            ),
+            )
           ],
+        ),
+        body: Center(
+          child: Column(
+            children: [
+              // Display posts from Firestore
+              Expanded(
+                  child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("User Posts")
+                    .orderBy("TimeStamp", descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        final post = snapshot.data!.docs[index];
+                        return Post(
+                          user: post["UserEmail"],
+                          message: post["Message"],
+                          postId: post.id,
+                          likes: List<String>.from(post['Likes'] ?? []),
+                          time: formatData(post["TimeStamp"]),
+                          imageUrl:
+                              post["ImageUrl"] != '' ? post["ImageUrl"] : null,
+                        );
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  return const Center(child: CircularProgressIndicator());
+                },
+              )),
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );

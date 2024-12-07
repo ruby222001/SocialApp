@@ -1,8 +1,15 @@
-import 'package:app/components/components/my_textfield.dart';
+import 'package:app/pages/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+
+import 'package:app/pages/profilepage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p; // Alias to avoid conflicts
 
 class PostingPage extends StatefulWidget {
   const PostingPage({super.key});
@@ -11,63 +18,124 @@ class PostingPage extends StatefulWidget {
   State<PostingPage> createState() => _PostingPageState();
 }
 
-final textController = TextEditingController();
-final currentUser = FirebaseAuth.instance.currentUser!;
-
-void postMessage(BuildContext context) {
-  // Only post if there is something
-  if (textController.text.isNotEmpty) {
-    // Store in Firebase
-    FirebaseFirestore.instance.collection("User Posts").add({
-      'UserEmail': currentUser.email,
-      'Message': textController.text,
-      'TimeStamp': Timestamp.now(),
-      'Likes': [],
-    }).then((_) {
-      // Clear the text
-      textController.clear();
-
-      // Navigate back to the homepage
-      Navigator.pop(context);
-    }).catchError((error) {
-      // Handle any errors if posting fails
-      if (kDebugMode) {
-        print('Failed to post message: $error');
-      }
-    });
-  }
-}
-
 class _PostingPageState extends State<PostingPage> {
+  final currentUser = FirebaseAuth.instance.currentUser!;
+  final textController = TextEditingController();
+  File? _selectedImage;
+
+  final _picker = ImagePicker();
+
+  Future<String> uploadImage(File imageFile) async {
+    try {
+      final fileName = p.basename(imageFile.path);
+      final storageRef =
+          FirebaseStorage.instance.ref().child('post_images/$fileName');
+
+      await storageRef.putFile(imageFile);
+      return await storageRef.getDownloadURL();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error uploading image: $e");
+      }
+      return '';
+    }
+  }
+
+  void postMessage() async {
+    if (textController.text.isNotEmpty || _selectedImage != null) {
+      final ref = FirebaseFirestore.instance.collection("User Posts").doc();
+
+      String? imageUrl;
+      if (_selectedImage != null) {
+        imageUrl = await uploadImage(_selectedImage!);
+      }
+
+      FirebaseFirestore.instance.collection("User Posts").doc(ref.id).set({
+        'UserEmail': currentUser.email,
+        'Message': textController.text,
+        'TimeStamp': Timestamp.now(),
+        'Likes': [],
+        'ImageUrl': imageUrl ?? '',
+      });
+
+      setState(() {
+        textController.clear();
+        _selectedImage = null;
+      });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => HomePage(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter text or select an image")),
+      );
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(25),
-            child: Row(
+      body: Padding(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          children: [
+            Row(
               children: [
-                //textfield
                 Expanded(
-                  child: MyTextField(
-                    hintText: 'Write something here',
-                    obscureText: false,
-                    controller: textController,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: TextField(
+                      controller: textController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        hintText: 'Write something here...',
+                      ),
+                    ),
                   ),
                 ),
-                //post button
-                const SizedBox(
-                  width: 5,
-                ),
-
                 IconButton(
-                    onPressed: () => postMessage,
-                    icon: const Icon(Icons.keyboard_arrow_down_outlined))
+                  icon: const Icon(Icons.image, color: Colors.black),
+                  onPressed: _pickImage,
+                ),
+                IconButton(
+                  onPressed: postMessage,
+                  icon: const Icon(Icons.send),
+                ),
               ],
             ),
-          ),
-        ],
+            if (_selectedImage != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.file(
+                    _selectedImage!,
+                    height: 150,
+                    width: 150,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
