@@ -104,7 +104,7 @@ class _PostState extends State<Post> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.blue.shade200,
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.only(top: 25, left: 25, right: 25),
@@ -117,7 +117,8 @@ class _PostState extends State<Post> {
           Row(
             children: [
               CircleAvatar(
-                backgroundColor: Colors.black,
+                backgroundColor: Colors.white,
+                child: Icon(Icons.person),
               ),
               SizedBox(
                 width: 10,
@@ -127,7 +128,7 @@ class _PostState extends State<Post> {
                 children: [
                   Text(
                     widget.user,
-                    style: TextStyle(color: Colors.grey[500]),
+                    style: TextStyle(color: Colors.black),
                   ),
                   const SizedBox(height: 10),
                   Text(widget.time),
@@ -141,7 +142,7 @@ class _PostState extends State<Post> {
               ? Image.network(
                   widget.imageUrl!,
                   width: double.infinity,
-                  height: 200,
+                  height: 400,
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) {
@@ -149,19 +150,19 @@ class _PostState extends State<Post> {
                     }
                     return Container(
                       width: double.infinity,
-                      height: 200,
+                      height: 400,
                       color: Colors.grey[200], // Placeholder background color
                       child: Center(
                         child: Image.asset(
                           'assets/images/zunun_logo.png', // Path to your default image
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     );
                   },
                   errorBuilder: (context, error, stackTrace) => Container(
                     width: double.infinity,
-                    height: 200,
+                    height: 400,
                     color: Colors.grey[200], // Background for failed image load
                     child: Center(
                       child: Image.asset(
@@ -174,7 +175,7 @@ class _PostState extends State<Post> {
               : Image.asset(
                   'assets/images/zunun_logo.png', // Default image when URL is empty
                   width: double.infinity,
-                  height: 200,
+                  height: 400,
                   fit: BoxFit.cover,
                 ),
 

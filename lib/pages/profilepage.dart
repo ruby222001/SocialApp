@@ -13,9 +13,13 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.blue.shade100,
         appBar: AppBar(
-          title: const Text("Profile"),
-          backgroundColor: Colors.grey[900],
+          backgroundColor: Colors.blue.shade200,
+          title: Text(
+            'Profile',
+            style: TextStyle(color: Colors.black),
+          ),
         ),
         body: ListView(
           children: [

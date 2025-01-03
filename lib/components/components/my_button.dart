@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+
 // ignore: must_be_immutable
 class MyButton extends StatelessWidget {
-
   void Function()? onTap;
   final Widget child;
-   MyButton({
+  MyButton({
     super.key,
-  required this.onTap,
-  required this.child,
+    required this.onTap,
+    required this.child,
   });
 
   @override
@@ -16,11 +16,10 @@ class MyButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
+          color: Colors.white60,
           borderRadius: BorderRadius.circular(12),
-
         ),
-        padding: const EdgeInsets.all(25),
+        padding: const EdgeInsets.all(20),
         child: child,
       ),
     );

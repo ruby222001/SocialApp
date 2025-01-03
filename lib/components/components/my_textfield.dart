@@ -13,14 +13,25 @@ class MyTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      
-      decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        hintText: hintText,
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white60, borderRadius: BorderRadius.circular(13)),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          fillColor: Colors.white,
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.white,
+              )),
+          border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+              borderRadius: BorderRadius.circular(12)),
+          hintText: hintText,
+        ),
+        obscureText: obscureText,
       ),
-      obscureText: obscureText,
     );
   }
 }

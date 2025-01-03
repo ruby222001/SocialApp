@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:app/auth/services/notification_page.dart';
 import 'package:app/components/components/drawer.dart';
 import 'package:app/helper/helper_functions.dart';
 import 'package:app/pages/post.dart';
@@ -7,13 +9,11 @@ import 'package:app/pages/posting_page.dart';
 import 'package:app/pages/profilepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,175 +24,163 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final currentUser = FirebaseAuth.instance.currentUser!;
-  final textController = TextEditingController();
-  File? _selectedImage;
+  List<Map<String, dynamic>> cachedPosts =
+      []; // Local list to store cached posts
 
-  final _picker = ImagePicker();
-
-  void signOut() {
-    FirebaseAuth.instance.signOut();
+  @override
+  void initState() {
+    super.initState();
+    loadCachedPosts(); // Load posts from SharedPreferences when the app starts
   }
 
-  Future<String> uploadImage(File imageFile) async {
-    try {
-      final fileName = basename(imageFile.path);
-      final storageRef =
-          FirebaseStorage.instance.ref().child('post_images/$fileName');
+  // Load cached posts from SharedPreferences
+  Future<void> loadCachedPosts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? postsJson = prefs.getString('cached_posts');
 
-      // Upload image to Firebase Storage
-      await storageRef.putFile(imageFile);
-
-      // Get the download URL for the uploaded image
-      String downloadUrl = await storageRef.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error uploading image: $e");
-      }
-      return ''; // Return empty string if upload fails
-    }
-  }
-
-  Future<String> getImageUrl(String filePath) async {
-    try {
-      final storageRef = FirebaseStorage.instance.ref().child(filePath);
-      final url =
-          await storageRef.getDownloadURL(); // Get the valid download URL
-      return url;
-    } catch (e) {
-      print("Error fetching image URL: $e");
-      return '';
-    }
-  }
-
-  void postMessage() async {
-    if (textController.text.isNotEmpty || _selectedImage != null) {
-      final ref = FirebaseFirestore.instance.collection("User Posts").doc();
-
-      String? imageUrl;
-      if (_selectedImage != null) {
-        imageUrl = await uploadImage(_selectedImage!);
-      }
-
-      FirebaseFirestore.instance.collection("User Posts").doc(ref.id).set({
-        'UserEmail': currentUser.email,
-        'Message': textController.text,
-        'TimeStamp': Timestamp.now(),
-        'Likes': [],
-        'ImageUrl': imageUrl ?? '',
-      });
-
+    if (postsJson != null) {
+      final List<dynamic> decodedPosts = jsonDecode(postsJson);
       setState(() {
-        textController.clear();
-        _selectedImage = null;
-      });
-    } else {
-      // ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-      //   SnackBar(content: Text("Please enter text or select an image")),
-      // );
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
+        cachedPosts =
+            decodedPosts.map((post) => post as Map<String, dynamic>).toList();
       });
     }
   }
 
-  void goToProfilePage() {
-    Navigator.pop(context as BuildContext);
-    Navigator.push(
-      context as BuildContext,
-      MaterialPageRoute(
-        builder: (context) => const ProfilePage(),
-      ),
-    );
+  // Save posts to SharedPreferences
+  Future<void> savePostsToCache(List<Map<String, dynamic>> posts) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String encodedPosts = jsonEncode(posts);
+    await prefs.setString('cached_posts', encodedPosts);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Scaffold(
-        backgroundColor: Colors.blue.shade100,
-        drawer: MyDrawer(
-          onProfileTap: goToProfilePage,
-          onSignout: signOut,
+    return Scaffold(
+      backgroundColor: Colors.blue.shade100,
+      drawer: MyDrawer(
+        onProfileTap: () {
+          goToProfilePage(context);
+        },
+        onSignout: signOut,
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
+        child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PostingPage()),
+          );
+        },
+      ),
+      appBar: AppBar(
+        backgroundColor: Colors.blue.shade200,
+        title: const Text(
+          'M I N I M A L',
+          style: TextStyle(color: Colors.black),
         ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PostingPage()),
-            );
-          },
-        ),
-        appBar: AppBar(
-          title: const Text(
-            'M I N I M A L',
-            style: TextStyle(color: Colors.black),
-          ),
-          elevation: 0,
-          actions: [
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()),
-                );
-              },
-              child: const CircleAvatar(
-                backgroundColor: Colors.black,
-                child: Icon(
-                  Icons.person,
-                  color: Colors.white,
+        elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ProfilePage()),
+                    );
+                  },
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.black,
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
-            )
-          ],
-        ),
-        body: Center(
-          child: Column(
-            children: [
-              // Display posts from Firestore
-              Expanded(
-                  child: StreamBuilder(
+              ],
+            ),
+          )
+        ],
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            Expanded(
+              child: StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection("User Posts")
                     .orderBy("TimeStamp", descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                        final post = snapshot.data!.docs[index];
-                        return Post(
-                          user: post["UserEmail"],
-                          message: post["Message"],
-                          postId: post.id,
-                          likes: List<String>.from(post['Likes'] ?? []),
-                          time: formatData(post["TimeStamp"]),
-                          imageUrl:
-                              post["ImageUrl"] != '' ? post["ImageUrl"] : null,
-                        );
-                      },
-                    );
+                    // Convert Firestore data to a list of maps
+                    final fetchedPosts = snapshot.data!.docs.map((doc) {
+                      return {
+                        "UserEmail": doc["UserEmail"],
+                        "Message": doc["Message"],
+                        "PostId": doc.id,
+                        "Likes": List<String>.from(doc['Likes'] ?? []),
+                        "TimeStamp": doc["TimeStamp"],
+                        "ImageUrl": doc["ImageUrl"] ?? '',
+                      };
+                    }).toList();
+
+                    // Save to cache
+                    savePostsToCache(fetchedPosts);
+
+                    return buildPostList(fetchedPosts);
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   }
-                  return const Center(child: CircularProgressIndicator());
+
+                  // Show cached posts if Firestore data is still loading
+                  return buildPostList(cachedPosts);
                 },
-              )),
-              const SizedBox(height: 10),
-            ],
-          ),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
         ),
       ),
     );
+  }
+
+  // Function to build the list of posts
+  Widget buildPostList(List<Map<String, dynamic>> posts) {
+    if (posts.isEmpty) {
+      return const Center(child: Text("No posts available"));
+    }
+
+    return ListView.builder(
+      itemCount: posts.length,
+      itemBuilder: (context, index) {
+        final post = posts[index];
+        return Post(
+          user: post["UserEmail"],
+          message: post["Message"],
+          postId: post["PostId"],
+          likes: List<String>.from(post['Likes'] ?? []),
+          time: formatData(post["TimeStamp"]),
+          imageUrl: post["ImageUrl"].isNotEmpty ? post["ImageUrl"] : null,
+        );
+      },
+    );
+  }
+
+  void goToProfilePage(BuildContext context) {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfilePage()),
+    );
+  }
+
+  void signOut() {
+    FirebaseAuth.instance.signOut();
   }
 }
