@@ -67,7 +67,7 @@ class _PostingPageState extends State<PostingPage> {
         'TimeStamp': Timestamp.now(),
         'Likes': [],
         'ImageUrl': imageUrl ?? '',
-  'UserUID': FirebaseAuth.instance.currentUser!.uid,
+        'UserUID': FirebaseAuth.instance.currentUser!.uid,
       });
 
       setState(() {
@@ -111,7 +111,6 @@ class _PostingPageState extends State<PostingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade100,
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.black,

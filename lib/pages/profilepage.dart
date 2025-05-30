@@ -43,8 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
         bio = data?['bio'];
         bioController.text = bio ?? '';
       }
-    } catch (e) {
-    }
+    } catch (e) {}
     setState(() {
       isLoading = false;
     });
@@ -136,6 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final confirmation = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text('Delete Post'),
         content: const Text('Are you sure you want to delete this post?'),
         actions: [
@@ -176,32 +176,33 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void _showDeleteConfirmationDialog(String postId, String imageUrl) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Delete Post"),
-          content: const Text("Are you sure you want to delete this post?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _deletePost(postId, imageUrl);
-              },
-              child: const Text("Delete"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _showDeleteConfirmationDialog(String postId, String imageUrl) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         backgroundColor: Colors.white,
+  //         title: const Text("Delete Post"),
+  //         content: const Text("Are you sure you want to delete this post?"),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text("Cancel"),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               _deletePost(postId, imageUrl);
+  //             },
+  //             child: const Text("Delete"),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -280,19 +281,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Text(
                     bio!,
                     textAlign: TextAlign.center,
+                    maxLines: 5,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                )
-              else
-                const Text(
-                  "No bio available.",
-                  style: TextStyle(
-                    color: Colors.white60,
-                    fontSize: 16,
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               const SizedBox(height: 10),
@@ -310,6 +304,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       fontSize: 18,
                       color: Colors.white,
                       fontWeight: FontWeight.bold)),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(
+                  color: Colors.grey,
+                  height: 20,
+                ),
+              ),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
@@ -325,7 +326,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                       return const Center(
-                        child: Text('No posts yet.'),
+                        child: Text(
+                          'No posts yet.',
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
                       );
                     }
 
@@ -396,12 +401,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                   right: -7,
                                   top: -4,
                                   child: PopupMenuButton<String>(
+                                    color: Colors.white,
                                     icon: const Icon(Icons.more_vert,
                                         color: Colors.white),
                                     onSelected: (value) {
                                       if (value == 'delete') {
-                                        _showDeleteConfirmationDialog(
-                                            postId, imageUrl);
+                                        _deletePost(postId, imageUrl);
                                       }
                                     },
                                     itemBuilder: (context) => [

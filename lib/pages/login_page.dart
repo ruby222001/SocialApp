@@ -25,12 +25,12 @@ class LoginPage extends StatelessWidget {
   }) async {
     if (!formKey.currentState!.validate()) return;
 
-    // showDialog(
-    //   context: context,
-    //   builder: (context) => const Center(
-    //     child: CircularProgressIndicator(),
-    //   ),
-    // );
+    showDialog(
+      context: context,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
 
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -40,7 +40,12 @@ class LoginPage extends StatelessWidget {
       if (context.mounted) Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      // displayMessageToUser(e.message ?? "Login failed", context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? "Login failed"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -104,6 +109,7 @@ class LoginPage extends StatelessWidget {
                       hintText: 'Password',
                       obscureText: true,
                       controller: passwordController,
+                      isPassword: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Enter your password';

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp/components/components/drawer.dart';
@@ -69,7 +70,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade100,
       drawer: MyDrawer(
         onProfileTap: () {
           goToProfilePage(context);
@@ -95,6 +95,46 @@ class _HomePageState extends State<HomePage> {
               color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
         ),
         elevation: 0,
+        actions: [
+          Builder(
+            builder: (context) {
+              String currentUID = currentUser.uid;
+              String? profileUrl = userProfilePics[currentUID];
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfilePage(),
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.grey[700],
+                    child: profileUrl != null && profileUrl.isNotEmpty
+                        ? ClipOval(
+                            child: CachedNetworkImage(
+                              imageUrl: profileUrl,
+                              placeholder: (context, url) =>
+                                  const CircularProgressIndicator(
+                                      strokeWidth: 2),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
+                              fit: BoxFit.cover,
+                              width: 40,
+                              height: 40,
+                            ),
+                          )
+                        : const Icon(Icons.person,
+                            size: 20, color: Colors.white),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Stack(
