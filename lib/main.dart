@@ -2,12 +2,12 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:socialapp/auth/auth.dart';
-import 'package:socialapp/auth/services/firebase_api.dart';
-import 'package:socialapp/auth/services/notification_page.dart';
-import 'package:socialapp/firebase_options.dart';
-import 'package:socialapp/pages/login_page.dart';
-import 'package:socialapp/pages/register_page.dart';
+import 'package:connect/auth/auth.dart';
+import 'package:connect/auth/services/firebase_api.dart';
+import 'package:connect/auth/services/notification_page.dart';
+import 'package:connect/firebase_options.dart';
+import 'package:connect/login/page/login_page.dart';
+import 'package:connect/pages/register_page.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
@@ -28,10 +28,10 @@ class MyApp extends StatelessWidget {
         title: 'Connect',
         theme: ThemeData(),
         home: Authpage(),
-        navigatorKey: navigatorKey,
+        // navigatorKey: navigatorKey,
         routes: {
           '/login_page': (context) => LoginPage(),
-          '/register_page': (context) => const RegisterPage(),
+          '/register_page': (context) => RegisterPage(),
           '/notification_screen': (context) => const NotificationPage(),
         });
   }

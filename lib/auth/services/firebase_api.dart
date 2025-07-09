@@ -1,5 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:socialapp/main.dart';
+import 'package:connect/main.dart';
 
 class FirebaseApi {
   // ignore: non_constant_identifier_names

@@ -7,8 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:socialapp/pages/image.dart';
-import 'package:socialapp/pages/posting_page.dart';
+import 'package:connect/pages/image.dart';
+import 'package:connect/pages/posting_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

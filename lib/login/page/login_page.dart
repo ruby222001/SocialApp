@@ -1,54 +1,19 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:connect/login/controller/login_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:socialapp/auth/auth_services.dart';
-import 'package:socialapp/components/components/my_button.dart';
-import 'package:socialapp/components/components/my_textfield.dart';
-import 'package:socialapp/helper/helper_functions.dart';
+import 'package:connect/auth/auth_services.dart';
+import 'package:connect/components/components/my_button.dart';
+import 'package:connect/components/components/my_textfield.dart';
+import 'package:connect/helper/helper_functions.dart';
 
 class LoginPage extends StatelessWidget {
   final void Function()? onTap;
 
   LoginPage({super.key, this.onTap});
 
-  final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  void loginUser({
-    required BuildContext context,
-    required TextEditingController emailController,
-    required TextEditingController passwordController,
-    required GlobalKey<FormState> formKey,
-  }) async {
-    if (!formKey.currentState!.validate()) return;
-
-    showDialog(
-      context: context,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      if (context.mounted) Navigator.pop(context);
-    } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message ?? "Login failed"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
+  final controller = LoginController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,7 +34,7 @@ class LoginPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(25.0),
               child: Form(
-                key: _formKey,
+                key: controller.formKey,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -79,7 +44,7 @@ class LoginPage extends StatelessWidget {
                     const SizedBox(height: 25),
 
                     const Text(
-                      'S O C I A L',
+                      'C O N N E C T',
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -91,7 +56,7 @@ class LoginPage extends StatelessWidget {
                     MyTextField(
                       hintText: 'Email',
                       obscureText: false,
-                      controller: emailController,
+                      controller: controller.emailController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Enter your email';
@@ -108,7 +73,7 @@ class LoginPage extends StatelessWidget {
                     MyTextField(
                       hintText: 'Password',
                       obscureText: true,
-                      controller: passwordController,
+                      controller: controller.passwordController,
                       isPassword: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -125,11 +90,11 @@ class LoginPage extends StatelessWidget {
                     // Login button
                     MyButton(
                       onTap: () {
-                        loginUser(
+                        controller.loginUser(
                           context: context,
-                          emailController: emailController,
-                          passwordController: passwordController,
-                          formKey: _formKey,
+                          emailController:controller. emailController,
+                          passwordController: controller.passwordController,
+                          formKey: controller.formKey,
                         );
                       },
                       child: const Text(

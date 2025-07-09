@@ -10,7 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
-import 'package:socialapp/pages/homepage.dart'; // Alias to avoid conflicts
+import 'package:connect/pages/homepage.dart'; // Alias to avoid conflicts
 
 class PostingPage extends StatefulWidget {
   const PostingPage({super.key});

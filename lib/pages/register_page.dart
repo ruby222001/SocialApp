@@ -1,78 +1,14 @@
+import 'package:connect/register/register_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:socialapp/components/components/my_button.dart';
-import 'package:socialapp/components/components/my_textfield.dart';
-import 'package:socialapp/helper/helper_functions.dart';
+import 'package:connect/components/components/my_button.dart';
+import 'package:connect/components/components/my_textfield.dart';
+import 'package:connect/helper/helper_functions.dart';
 
-class RegisterPage extends StatefulWidget {
+class RegisterPage extends StatelessWidget {
   final void Function()? onTap;
-  const RegisterPage({super.key, this.onTap});
-
-  @override
-  State<RegisterPage> createState() => _RegisterPageState();
-}
-
-class _RegisterPageState extends State<RegisterPage> {
-  final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController userController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmpasswordController =
-      TextEditingController();
-
-  @override
-  void dispose() {
-    userController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    confirmpasswordController.dispose();
-    super.dispose();
-  }
-
-  void registerUser() async {
-    if (_formKey.currentState!.validate()) {
-      // showDialog(
-      //   context: context,
-      //   builder: (context) => const Center(child: CircularProgressIndicator()),
-      // );
-
-      try {
-        if (passwordController.text.trim() ==
-            confirmpasswordController.text.trim()) {
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          );
-          Navigator.pop(context);
-        } else {
-          Navigator.pop(context);
-          showErrorMessage("Passwords don't match");
-        }
-      } on FirebaseAuthException catch (e) {
-        Navigator.pop(context);
-        showErrorMessage(e.message ?? 'An error occurred');
-      }
-    }
-  }
-
-  void showErrorMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.blue,
-          title: Center(
-            child: Text(
-              message,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
+  RegisterPage({super.key, this.onTap});
+  final controller = RegisterController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Padding(
               padding: const EdgeInsets.all(25.0),
               child: Form(
-                key: _formKey,
+                key: controller.formKey,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -100,7 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const Icon(Icons.person, size: 80, color: Colors.white),
                     const SizedBox(height: 25),
                     const Text(
-                      'S O C I A L',
+                      'C O N N E C T',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -110,7 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     MyTextField(
                       hintText: 'Username',
                       obscureText: false,
-                      controller: userController,
+                      controller: controller.userController,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Username is required';
@@ -122,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     MyTextField(
                       hintText: 'Email',
                       obscureText: false,
-                      controller: emailController,
+                      controller: controller.emailController,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Email is required';
@@ -138,7 +74,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     MyTextField(
                       hintText: 'Password',
                       obscureText: true,
-                      controller: passwordController,
+                      controller: controller.passwordController,
                       validator: (value) {
                         if (value == null || value.length < 6) {
                           return 'Password must be at least 6 characters';
@@ -150,9 +86,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     MyTextField(
                       hintText: 'Confirm Password',
                       obscureText: true,
-                      controller: confirmpasswordController,
+                      controller: controller.confirmpasswordController,
                       validator: (value) {
-                        if (value != passwordController.text) {
+                        if (value != controller.passwordController.text) {
                           return 'Passwords do not match';
                         }
                         return null;
@@ -160,7 +96,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 25),
                     MyButton(
-                      onTap: registerUser,
+                      onTap: () {
+                        controller.registerUser(context);
+                      },
                       child: const Text(
                         "Register",
                         style: TextStyle(
@@ -176,7 +114,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: TextStyle(color: Colors.white),
                         ),
                         GestureDetector(
-                          onTap: widget.onTap,
+                          onTap: onTap,
                           child: const Text(
                             "Login Here",
                             style: TextStyle(

@@ -2,10 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:socialapp/components/components/comment.dart';
-import 'package:socialapp/components/components/comment_button.dart';
-import 'package:socialapp/components/like_button.dart';
-import 'package:socialapp/helper/helper_functions.dart';
+import 'package:connect/components/components/comment.dart';
+import 'package:connect/components/components/comment_button.dart';
+import 'package:connect/components/like_button.dart';
+import 'package:connect/helper/helper_functions.dart';
 
 class Post extends StatefulWidget {
   final String message;

@@ -3,15 +3,15 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:socialapp/components/components/drawer.dart';
-import 'package:socialapp/helper/helper_functions.dart';
+import 'package:connect/components/components/drawer.dart';
+import 'package:connect/helper/helper_functions.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:socialapp/pages/post.dart';
-import 'package:socialapp/pages/posting_page.dart';
-import 'package:socialapp/pages/profilepage.dart';
+import 'package:connect/pages/post.dart';
+import 'package:connect/pages/posting_page.dart';
+import 'package:connect/pages/profilepage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> {
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.black,
         title: const Text(
-          'S O C I A L',
+          'C O N N E C T',
           style: TextStyle(
               color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
         ),
