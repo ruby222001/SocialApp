@@ -207,6 +207,7 @@ class _PostState extends State<Post> {
           Row(
             children: [
               LikeButton(isLiked: isLiked, onTap: toggleLike),
+              const SizedBox(width: 5),
               Text(
                 widget.likes.length.toString(),
                 style: const TextStyle(
