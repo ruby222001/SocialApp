@@ -215,6 +215,7 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
+  
 
     return ListView.builder(
       itemCount: posts.length,

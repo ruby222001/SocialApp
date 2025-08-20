@@ -6,6 +6,8 @@ import 'package:connect/components/components/comment.dart';
 import 'package:connect/components/components/comment_button.dart';
 import 'package:connect/components/like_button.dart';
 import 'package:connect/helper/helper_functions.dart';
+import 'package:like_button/like_button.dart';
+import 'package:photo_view/photo_view.dart';
 
 class Post extends StatefulWidget {
   final String message;
@@ -186,12 +188,19 @@ class _PostState extends State<Post> {
 
           const SizedBox(height: 10),
           // Display selected image if present
-          Image.network(
-            widget.imageUrl!,
-            width: double.infinity,
+          SizedBox(
             height: 400,
-            fit: BoxFit.cover,
+            width: double.infinity,
+            child: PhotoView(
+              imageProvider: NetworkImage(widget.imageUrl!),
+              backgroundDecoration: const BoxDecoration(
+                color: Colors.black, // or transparent
+              ),
+              minScale: PhotoViewComputedScale.contained, // fit in screen
+              maxScale: PhotoViewComputedScale.covered * 2.0, // zoom up to 2x
+            ),
           ),
+
           const SizedBox(
             height: 10,
           ),
@@ -204,16 +213,30 @@ class _PostState extends State<Post> {
           const SizedBox(
             height: 10,
           ),
+
           Row(
             children: [
-              LikeButton(isLiked: isLiked, onTap: toggleLike),
+              LikeButton(
+                isLiked: isLiked,
+                onTap: (bool isCurrentlyLiked) async {
+                  toggleLike(); // your function to update backend/state
+                  return !isCurrentlyLiked; // toggle state
+                },
+                likeBuilder: (bool isLiked) {
+                  return Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? Colors.red : Colors.grey,
+                    size: 28,
+                  );
+                },
+              ),
               const SizedBox(width: 5),
               Text(
                 widget.likes.length.toString(),
                 style: const TextStyle(
-                    fontSize: 15,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+                  fontSize: 15,
+                  color: Colors.white, // change to your color
+                ),
               ),
               const SizedBox(width: 10),
               StreamBuilder<QuerySnapshot>(

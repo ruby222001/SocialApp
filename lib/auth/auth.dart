@@ -1,3 +1,4 @@
+import 'package:connect/splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connect/auth/login_or_register.dart';
@@ -14,7 +15,7 @@ class Authpage extends StatelessWidget {
         builder: (context, snapshot) {
           //user is logged in
           if (snapshot.hasData) {
-            return const HomePage();
+            return const SplashScreen();
           }
           //user is Not logged in
           else {
