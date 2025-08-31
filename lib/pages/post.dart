@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connect/pages/profilepage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:connect/components/components/comment.dart';
@@ -8,21 +9,25 @@ import 'package:connect/components/like_button.dart';
 import 'package:connect/helper/helper_functions.dart';
 import 'package:like_button/like_button.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Post extends StatefulWidget {
   final String message;
   final String user;
   final String time;
-
   final String postId;
+
+  final String uuid;
   final List<String> likes;
   final String? imageUrl;
   final String? userimageUrl;
+
 
   Post({
     super.key,
     required this.message,
     required this.user,
+    required this.uuid,
     required this.postId,
     required this.likes,
     required this.time,
@@ -188,18 +193,32 @@ class _PostState extends State<Post> {
 
           const SizedBox(height: 10),
           // Display selected image if present
-          SizedBox(
-            height: 400,
-            width: double.infinity,
-            child: PhotoView(
-              imageProvider: NetworkImage(widget.imageUrl!),
-              backgroundDecoration: const BoxDecoration(
-                color: Colors.black, // or transparent
-              ),
-              minScale: PhotoViewComputedScale.contained, // fit in screen
-              maxScale: PhotoViewComputedScale.covered * 2.0, // zoom up to 2x
-            ),
-          ),
+          // SizedBox(
+          //   height: 400,
+          //   width: double.infinity,
+          //   child: PhotoView(
+CachedNetworkImage(
+      imageUrl: widget.imageUrl!,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Container(
+          width: double.infinity,
+          height: 200, // set height (or wrap with AspectRatio)
+          color: Colors.white,
+        ),
+      ),
+      errorWidget: (context, url, error) => const Icon(Icons.error),
+)
+          ,
+          //     backgroundDecoration: const BoxDecoration(
+          //       color: Colors.black, // or transparent
+          //     ),
+          //     minScale: PhotoViewComputedScale.contained, // fit in screen
+          //     maxScale: PhotoViewComputedScale.covered * 2.0, // zoom up to 2x
+          //   ),
+          // ),
 
           const SizedBox(
             height: 10,
@@ -219,7 +238,7 @@ class _PostState extends State<Post> {
               LikeButton(
                 isLiked: isLiked,
                 onTap: (bool isCurrentlyLiked) async {
-                  toggleLike(); // your function to update backend/state
+                  toggleLike();
                   return !isCurrentlyLiked; // toggle state
                 },
                 likeBuilder: (bool isLiked) {

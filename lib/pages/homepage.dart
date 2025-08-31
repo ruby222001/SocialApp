@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connect/components/components/snackbar.dart';
+import 'package:connect/login/page/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connect/components/components/drawer.dart';
@@ -74,7 +76,11 @@ class _HomePageState extends State<HomePage> {
         onProfileTap: () {
           goToProfilePage(context);
         },
-        onSignout: signOut,
+        onSignout: () {
+          signOut(context);
+          SSnackbarUtil.showFadeSnackbar(
+              context, "You are logged out", SnackbarType.success);
+        },
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.white,
@@ -104,12 +110,9 @@ class _HomePageState extends State<HomePage> {
               return Padding(
                 padding: const EdgeInsets.only(right: 12.0),
                 child: GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfilePage(),
-                    ),
-                  ),
+                  onTap: () {
+                    goToProfilePage(context);
+                  },
                   child: CircleAvatar(
                     radius: 20,
                     backgroundColor: Colors.grey[700],
@@ -215,7 +218,6 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
-  
 
     return ListView.builder(
       itemCount: posts.length,
@@ -223,46 +225,54 @@ class _HomePageState extends State<HomePage> {
         final post = posts[index];
 
         return Post(
+          uuid: post["UserUID"], // This is the poster’s UID
           user: post["UserEmail"],
           message: post["Message"],
           postId: post["PostId"],
           likes: List<String>.from(post['Likes'] ?? []),
           time: formatData(post["TimeStamp"]),
           imageUrl: post["ImageUrl"],
-          userimageUrl:
-              post["UserProfilePic"], // use dynamic user profile pic here
+          userimageUrl: post["UserProfilePic"],
         );
       },
     );
   }
 
-  void goToProfilePage(BuildContext context) {
-    Navigator.pop(context);
-
+  void goToProfilePage(
+    BuildContext context,
+  ) {
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
-          return const ProfilePage(); // The page you want to navigate to
+          return ProfilePage(); // Pass UID here
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0); // Starting point (from right)
-          const end = Offset.zero; // Ending point (to center)
-          const curve = Curves.easeInOut; // Transition curve
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
 
           var tween =
               Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
 
           return SlideTransition(
-              position: offsetAnimation,
-              child: child); // Slide transition from right to left
+            position: offsetAnimation,
+            child: child,
+          );
         },
       ),
     );
   }
 
-  void signOut() {
-    FirebaseAuth.instance.signOut();
+  void signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+
+    // Navigate to login page and remove all previous routes
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (route) => false,
+    );
   }
 }

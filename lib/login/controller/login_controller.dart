@@ -1,12 +1,13 @@
+import 'package:connect/components/components/snackbar.dart';
+import 'package:connect/pages/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginController {
-   final formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
 
 //LOGIN
   void loginUser({
@@ -29,15 +30,17 @@ class LoginController {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      if (context.mounted) Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+       SSnackbarUtil.showFadeSnackbar(
+              context, "You are logged in", SnackbarType.success);
+      // if (context.mounted) Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message ?? "Login failed"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      SSnackbarUtil.showFadeSnackbar(
+          context, e.message ?? "Login failed", SnackbarType.success);
     }
   }
 }

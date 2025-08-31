@@ -74,6 +74,7 @@ class RegisterPage extends StatelessWidget {
                     MyTextField(
                       hintText: 'Password',
                       obscureText: true,
+                      isPassword: true,
                       controller: controller.passwordController,
                       validator: (value) {
                         if (value == null || value.length < 6) {
@@ -86,6 +87,7 @@ class RegisterPage extends StatelessWidget {
                     MyTextField(
                       hintText: 'Confirm Password',
                       obscureText: true,
+                      isPassword: true,
                       controller: controller.confirmpasswordController,
                       validator: (value) {
                         if (value != controller.passwordController.text) {
