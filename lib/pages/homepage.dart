@@ -1,8 +1,13 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connect/auth/auth_services.dart';
 import 'package:connect/components/components/snackbar.dart';
+import 'package:connect/components/components/usertile.dart';
+import 'package:connect/login/controller/login_controller.dart';
 import 'package:connect/login/page/login_page.dart';
+import 'package:connect/pages/chat_page.dart';
+import 'package:connect/services/chat/chat_Services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connect/components/components/drawer.dart';
@@ -23,6 +28,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final ChatService _chatService = ChatService();
+  final AuthService _authService = AuthService();
+  final LoginController _loginController = LoginController();
+
   final currentUser = FirebaseAuth.instance.currentUser!;
   List<Map<String, dynamic>> cachedPosts =
       []; // Local list to store cached posts
@@ -102,17 +111,28 @@ class _HomePageState extends State<HomePage> {
         ),
         elevation: 0,
         actions: [
-          Builder(
-            builder: (context) {
-              String currentUID = currentUser.uid;
-              String? profileUrl = userProfilePics[currentUID];
+          StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('Users')
+                .doc(currentUser.uid)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const CircleAvatar(
+                  radius: 20,
+                  child: Icon(Icons.person, size: 20),
+                );
+              }
 
-              return Padding(
-                padding: const EdgeInsets.only(right: 12.0),
-                child: GestureDetector(
-                  onTap: () {
-                    goToProfilePage(context);
-                  },
+              final data = snapshot.data!.data() as Map<String, dynamic>?;
+              final profileUrl = data?['profileImageUrl'];
+
+              return GestureDetector(
+                onTap: () {
+                  goToProfilePage(context);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: CircleAvatar(
                     radius: 20,
                     backgroundColor: Colors.grey[700],
@@ -130,8 +150,7 @@ class _HomePageState extends State<HomePage> {
                               height: 40,
                             ),
                           )
-                        : const Icon(Icons.person,
-                            size: 20, color: Colors.white),
+                        : const Icon(Icons.person, size: 20),
                   ),
                 ),
               );

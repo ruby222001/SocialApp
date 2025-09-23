@@ -1,3 +1,5 @@
+import 'package:connect/pages/chat_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connect/components/components/list_in_drawer.dart';
 
@@ -13,6 +15,8 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
     return Drawer(
       backgroundColor: Colors.grey[900],
       child: Column(
@@ -36,6 +40,17 @@ class MyDrawer extends StatelessWidget {
                 icon: Icons.person,
                 text: 'Profile',
                 onTap: onProfileTap,
+              ),
+              MyListTile2(
+                icon: Icons.chat,
+                text: 'Chat',
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChatPage(
+                              )));
+                },
               ),
             ],
           ),

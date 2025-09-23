@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connect/pages/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,11 +33,26 @@ class RegisterController {
         if (passwordController.text.trim() ==
             confirmpasswordController.text.trim()) {
           // Create user with Firebase Auth
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          UserCredential userCred =
+              await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
           );
+          User? user = userCred.user;
 
+          if (user != null) {
+            await FirebaseFirestore.instance
+                .collection('Users')
+                .doc(user.uid)
+                .set({
+              'username': userController.text.trim(),
+              'uid': user.uid,
+              'email': user.email,
+              'createdAt': DateTime.now(),'profileImageUrl': null, // placeholder
+  'bio': '',
+
+            });
+          }
           // Close loading dialog
           Navigator.pop(context);
 

@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -33,6 +34,8 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadUserProfile();
   }
 
+  String? username;
+
   Future<void> _loadUserProfile() async {
     try {
       final userDoc =
@@ -40,6 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if (userDoc.exists) {
         final data = userDoc.data();
         profileImageUrl = data?['profileImageUrl'];
+        username = data?['username'];
         bio = data?['bio'];
         bioController.text = bio ?? '';
       }
@@ -52,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _updateProfilePicture() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final currentUser = FirebaseAuth.instance.currentUser!;
 
     if (pickedFile != null) {
       setState(() {
@@ -64,10 +69,9 @@ class _ProfilePageState extends State<ProfilePage> {
         await ref.putFile(file);
         final url = await ref.getDownloadURL();
 
-        await firestore.collection('Users').doc(currentUser.uid).set(
-          {'profileImageUrl': url},
-          SetOptions(merge: true),
-        );
+        await firestore.collection('Users').doc(currentUser.uid).update({
+          'profileImageUrl': url,
+        });
 
         setState(() {
           profileImageUrl = url;
@@ -110,9 +114,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   return;
                 }
 
-                await firestore.collection('Users').doc(currentUser.uid).set(
+                await firestore.collection('Users').doc(currentUser.uid).update(
                   {'bio': updatedBio},
-                  SetOptions(merge: true),
                 );
                 setState(() {
                   bio = updatedBio;
@@ -250,12 +253,24 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.all(8.0),
                       child: CircleAvatar(
                         radius: 50,
-                        backgroundImage: profileImageUrl != null
-                            ? NetworkImage(profileImageUrl!)
-                            : null,
-                        child: profileImageUrl == null
-                            ? const Icon(Icons.person, size: 50)
-                            : null,
+                        backgroundColor: Colors.grey[400],
+                        child:
+                            profileImageUrl == null || profileImageUrl!.isEmpty
+                                ? const Icon(Icons.person,
+                                    size: 50, color: Colors.white)
+                                : ClipOval(
+                                    child: CachedNetworkImage(
+                                      imageUrl: profileImageUrl!,
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          const CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error, size: 50),
+                                    ),
+                                  ),
                       ),
                     ),
                     if (isUploadingImage)
@@ -373,19 +388,29 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ? AspectRatio(
                                             aspectRatio:
                                                 4 / 3, // Adjust as needed
-                                            child: imageUrl != null &&
-                                                    imageUrl.isNotEmpty
-                                                ? Image.network(
-                                                    imageUrl,
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : const Icon(
-                                                    Icons.image_not_supported,
-                                                    size: 50,
-                                                    color: Colors.grey),
+                                            child: CachedNetworkImage(
+                                              imageUrl: imageUrl!,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  const Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                        strokeWidth: 2),
+                                              ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      const Icon(
+                                                Icons.image_not_supported,
+                                                size: 50,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
                                           )
-                                        : const Icon(Icons.image_not_supported,
-                                            size: 100, color: Colors.grey),
+                                        : const Icon(
+                                            Icons.image_not_supported,
+                                            size: 100,
+                                            color: Colors.grey,
+                                          ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:connect/login/controller/login_controller.dart';
+import 'package:connect/pages/register_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connect/auth/auth_services.dart';
@@ -92,7 +93,7 @@ class LoginPage extends StatelessWidget {
                       // Login button
                       MyButton(
                         onTap: () {
-                          FocusScope.of(context).unfocus();
+                          FocusManager.instance.primaryFocus?.unfocus();
 
                           controller.loginUser(
                             context: context,
@@ -116,7 +117,12 @@ class LoginPage extends StatelessWidget {
                           const Text("Don't have an account? ",
                               style: TextStyle(color: Colors.white)),
                           GestureDetector(
-                            onTap: onTap,
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => RegisterPage()));
+                            },
                             child: const Text(
                               "Register Here",
                               style: TextStyle(
