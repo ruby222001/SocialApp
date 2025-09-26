@@ -24,7 +24,9 @@ class MainNavPage extends StatelessWidget {
   ];
 
   final iconList = <Widget>[
-    Icon(Icons.home),
+    Icon(
+      Icons.home,
+    ),
     Icon(Icons.add),
     Icon(Icons.chat),
     Icon(Icons.person),
@@ -36,6 +38,8 @@ class MainNavPage extends StatelessWidget {
       return Scaffold(
         body: pages[_navController.currentIndex.value],
         bottomNavigationBar: CurvedNavigationBar(
+          color: Colors.white,
+          buttonBackgroundColor: Colors.white,
           items: iconList,
           backgroundColor: Colors.black,
           animationCurve: Curves.easeIn,
@@ -43,7 +47,6 @@ class MainNavPage extends StatelessWidget {
           onTap: (index) {
             _navController.changeIndex(index);
           },
-         
         ),
       );
     });

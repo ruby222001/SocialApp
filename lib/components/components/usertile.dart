@@ -15,7 +15,9 @@ class UserTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Ink(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey.shade800),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -23,18 +25,21 @@ class UserTile extends StatelessWidget {
                   CircleAvatar(
                     radius: 25,
                     backgroundImage: (imageData != null)
-                        ? CachedNetworkImageProvider(imageData ?? '',
-                        
-                        )
+                        ? CachedNetworkImageProvider(
+                            imageData ?? '',
+                          )
                         : const AssetImage("assets/images/google.png"),
                     child: (imageData == null)
                         ? const Icon(Icons.person, size: 30)
                         : null,
                   ),
                   SizedBox(
-                    width: 10,
+                    width: 15,
                   ),
-                  Text(username ?? '')
+                  Text(
+                    username ?? '',
+                    style: TextStyle(color: Colors.white),
+                  )
                 ],
               ),
             ),

@@ -16,10 +16,13 @@ class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text("Friends"),
+        backgroundColor: Colors.black,
+        title: const Text(
+          "Friends",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('Users').snapshots(),
@@ -100,17 +103,24 @@ class _ChatPageDetailState extends State<ChatPageDetail> {
     String currentUserId = _auth.currentUser!.uid;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        automaticallyImplyLeading: true,
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade800,
         title: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          // mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
               backgroundImage: NetworkImage(widget.receiverProfile),
               radius: 18,
             ),
-            const SizedBox(width: 8),
-            Text(widget.receiver),
+            const SizedBox(width: 10),
+            Text(
+              widget.receiver,
+              style: TextStyle(color: Colors.white),
+            ),
           ],
         ),
       ),
