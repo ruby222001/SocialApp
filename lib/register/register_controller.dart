@@ -25,7 +25,7 @@ class RegisterController {
       // Show loading indicator
       showDialog(
         context: context,
-        barrierDismissible: false, // user can't close by tapping outside
+        barrierDismissible: false, 
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
